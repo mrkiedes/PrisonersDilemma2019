@@ -1,0 +1,503 @@
+--------------------------------------------------------------------------------
+Section 0 - Line up
+--------------------------------------------------------------------------------
+Player 0 (P0): The Only Boy and Girl Combo, Collude most of the time unless betrayed
+        In order to gather data on the opponents playing strategy, we will assig
+        n our first 8 plays to a different strategy. For our first 8 plays, we w
+        ill put forth a 50/50 chance of betrayal and collusion. After that: if t
+        here is a betrayal within our opponents past 10 moves, we will put forth
+         a 75% of betrayal. In addition to that, if in their most recent move, i
+        f we collided and they betrayed, we will automatically betray as to less
+        en our point loss.
+Player 1 (P1): Salvemundi, Deum laudamus victoria
+        Start trustful and be more cautious
+Player 2 (P2): OogaBoogahs, Collude 50% unless betrayed within the last 50 rounds
+        Betray if ever betrayed.
+        Betray half of the time, if haven't betrayed yet then start to betray af
+        ter the 50th round
+Player 3 (P3): vlogChamp™, How to get free 100 points(No Survey!)
+        We’ll always collude and if they betray we betray.
+--------------------------------------------------------------------------------
+Section 1 - Player vs. Player
+--------------------------------------------------------------------------------
+Each column shows pts/round earned against each other player:
+             P0     P1     P2     P3
+vs. P0 :      0     -8   -158    -61
+vs. P1 :      1      0      2      0
+vs. P2 :   -309   -427      0   -316
+vs. P3 :      4      0     58      0
+TOTAL  :   -304   -435    -98   -377
+--------------------------------------------------------------------------------
+Section 2 - Leaderboard
+--------------------------------------------------------------------------------
+Average points per round:
+Team name (P#):  Score      with strategy name
+OogaBoogah(P2):        -25 points with Collude 50% unless betrayed within the l
+The Only B(P0):        -76 points with Collude most of the time unless betrayed
+vlogChamp�(P3):        -95 points with How to get free 100 points(No Survey!)  
+Salvemundi(P1):       -109 points with Deum laudamus victoria                  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+team0--------------------------------------------------------------------------------
+import random
+
+team_name = 'The Only Boy and Girl Combo'     # Only 10 chars displayed.
+strategy_name = 'Collude most of the time unless betrayed'
+strategy_description = 'In order to gather data on the opponents playing strategy, we will assign our first 8 plays to a different strategy. For our first 8 plays, we will put forth a 50/50 chance of betrayal and collusion. After that: if there is a betrayal within our opponents past 10 moves, we will put forth a 75% of betrayal. In addition to that, if in their most recent move, if we collided and they betrayed, we will automatically betray as to lessen our point loss.'
+
+
+def move(my_history, their_history, my_score, their_score):
+    if 'b' in their_history[-10:]: # If the other player has betrayed within last 10 rounds,
+        return 'b'               # Betray.
+    else:
+        if random.random()<0.1: # 10% of the other rounds
+            return 'b'         # Betray
+        else:
+            return 'c'
+
+
+def move(my_history, their_history, my_score, their_score):
+    list1 = ['c', 'b']
+    if len(my_history)<=8: #for the first 8 moves
+       return random.choice(list1) #returns either collude or betray from a list
+    else:
+        if my_history[-1]=='c' and their_history[-1]=='b': #if our last move was collude and their last move was betray
+            return 'b' #Betray
+        elif 'b' in their_history[-10:]:  #if the opponent betrayed in the last 10 moves
+            if random.random()<0.75: #have a 75% chance of betraying
+                return 'b'
+            else:
+                return 'c'  #otherwise collude 25% of the time
+        else:
+            return 'c'   #if the opponent did not betray in the last ten moves, or we did not collude when they betrayed, then collude.
+
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='',
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc',
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0,
+              their_score=0,
+              result='b')
+
+
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty.
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+--------------------------------------------------------------------------------
+team1--------------------------------------------------------------------------------
+ ####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'Salvemundi' # Only 10 chars displayed.
+strategy_name = 'Deum laudamus victoria'
+strategy_description = 'Start trustful and be more cautious'
+    
+def move(my_history, their_history, my_score, their_score):
+    trust = 0 #Start with neutral trust 
+    if len(my_history)<3: #It's the first 2 rounds; collude.
+        return 'c'
+        
+    elif 'b' in their_history[-3]: #If the other AI has betrayed within the last three rounds...
+        trust -= 1 #Decrease trust in AI
+    else: #If they haven't...
+        trust += 1 #Increase trust in AI
+    if their_score > 249:#If they've betrayed with colluding choices enough....
+        trust -= 1 #Decrease trust in AI
+    else: #If they haven't...
+        trust += 1 #Increase trust in AI
+
+    if trust > -1: #If the other AI is trusted....
+        return 'c' #Collude
+    else: #If they aren't trusted...
+        return 'b' #Betray
+   
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+   
+
+        # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='b')    --------------------------------------------------------------------------------
+team2--------------------------------------------------------------------------------
+import random
+
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'OogaBoogahs' # Only 10 chars displayed.
+
+strategy_name = 'Collude 50% unless betrayed within the last 50 rounds'
+strategy_description = '''\
+Betray if ever betrayed.
+Betray half of the time, if haven't betrayed yet then start to betray after the 50th round
+'''
+
+
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+
+    if 'b' in their_history[-50:]: #if they betray wihtin the last 50 rounds
+        return 'b'             #then betray
+    else:
+        if random.random()<0.5:  #50% of the rounds
+              return 'b'        #Betray
+        else:
+            return 'c'          #but the other 50% of the time collude
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    
+ 
+
+    
+
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    if test_move(my_history='bbbb',
+              their_history='cccb', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=25, 
+              their_score=54,
+              result='b'):
+        print 'Test passed'
+    else:
+        print("Test Failed")      --------------------------------------------------------------------------------
+team3--------------------------------------------------------------------------------
+# -*- coding: utf-8 -*-
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'vlogChamp™' # Only 10 chars displayed.
+strategy_name = 'How to get free 100 points(No Survey!)'
+strategy_description = 'We’ll always collude and if they betray we betray.'
+import random
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. '''
+    
+    if their_score == 100: # If we've been bamboozeled then betray them.
+        print("Like yo mama? Make sure to like the video!")
+        return 'b'
+    else:
+        return 'c'
+    
+    if 'b' in their_history[0:]: # If the other player has betrayed within last round, 
+        return 'b'               # Betray them like the frickin' fracks they are.
+    else:
+        return 'c'         # but 100% of the time collude
+    
+    if 'c' in my_history[0:]: # If we have not betrayed within the last round.
+        return 'b'            # Betray because we take those.
+    else:
+        return 'c'
+    
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+
+
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" + ", ".join(["'"+my_history+"'", "'"+their_history+"'", str(my_score), str(their_score)])+") returned " + "'" + real_result + "'" + " and should have returned '" + result + "'")
+        return False
+
+
+if __name__ == '__main__':
+    
+    # Test 1: Betray on first move.
+    if test_move(my_history='ccc',
+              their_history='bbb', 
+              my_score=0,
+              their_score=100,
+              result='b'):
+         print 'Test passed'
+    else:
+         print 'Test Failed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='c')             
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team The Only Boy and Girl Combo
+--------------------------------------------------------------------------------
+1 pt/round: The Only Boy and Girl Combo(P0) "Collude most of the time unless betrayed"
+-8 pt/round: Salvemundi(P1) "Deum laudamus victoria"
+BCCBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+cCCcCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-309 pt/round: The Only Boy and Girl Combo(P0) "Collude most of the time unless betrayed"
+-158 pt/round: OogaBoogahs(P2) "Collude 50% unless betrayed within the last 50 rounds"
+CCcccCbccbbcbbbbbbbcbbbbbbcbbcbbbcbcbbbcbbbbbcbcbbbbbbcbbbbcbbcbbbbbcbcbcbbbbcbc
+CCBBBCbBBbbBbbbbbbbBbbbbbbBbbBbbbBbBbbbBbbbbbBbBbbbbbbBbbbbBbbBbbbbbBbBbBbbbbBbB
+
+bbbbcbbbbbcbbcbcbbbbcbbcbbbbbbbbbcbcbcbcbbcbbbbbbcbbbbbcbcbbcbbbbbbbcbcbbbbbcbb
+bbbbBbbbbbBbbBbBbbbbBbbBbbbbbbbbbBbBbBbBbbBbbbbbbBbbbbbBbBbbBbbbbbbbBbBbbbbbBbb
+
+--------------------------------------------------------------------------------
+4 pt/round: The Only Boy and Girl Combo(P0) "Collude most of the time unless betrayed"
+-61 pt/round: vlogChamp™(P3) "How to get free 100 points(No Survey!)"
+BcBCCCBBBBcBBBBBbBCBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+cBcCCCccccBcccccbcCccccccccCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCC
+CCCCCC
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Salvemundi
+--------------------------------------------------------------------------------
+-8 pt/round: Salvemundi(P1) "Deum laudamus victoria"
+1 pt/round: The Only Boy and Girl Combo(P0) "Collude most of the time unless betrayed"
+cCCcCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+BCCBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-427 pt/round: Salvemundi(P1) "Deum laudamus victoria"
+2 pt/round: OogaBoogahs(P2) "Collude 50% unless betrayed within the last 50 rounds"
+Ccccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcc
+CBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBB
+
+cbccbcccbccbcccbccbcccbcc
+BbBBbBBBbBBbBBBbBBbBBBbBB
+
+--------------------------------------------------------------------------------
+0 pt/round: Salvemundi(P1) "Deum laudamus victoria"
+0 pt/round: vlogChamp™(P3) "How to get free 100 points(No Survey!)"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team OogaBoogahs
+--------------------------------------------------------------------------------
+-158 pt/round: OogaBoogahs(P2) "Collude 50% unless betrayed within the last 50 rounds"
+-309 pt/round: The Only Boy and Girl Combo(P0) "Collude most of the time unless betrayed"
+CCBBBCbBBbbBbbbbbbbBbbbbbbBbbBbbbBbBbbbBbbbbbBbBbbbbbbBbbbbBbbBbbbbbBbBbBbbbbBbB
+CCcccCbccbbcbbbbbbbcbbbbbbcbbcbbbcbcbbbcbbbbbcbcbbbbbbcbbbbcbbcbbbbbcbcbcbbbbcbc
+
+bbbbBbbbbbBbbBbBbbbbBbbBbbbbbbbbbBbBbBbBbbBbbbbbbBbbbbbBbBbbBbbbbbbbBbBbbbbbBbb
+bbbbcbbbbbcbbcbcbbbbcbbcbbbbbbbbbcbcbcbcbbcbbbbbbcbbbbbcbcbbcbbbbbbbcbcbbbbbcbb
+
+--------------------------------------------------------------------------------
+2 pt/round: OogaBoogahs(P2) "Collude 50% unless betrayed within the last 50 rounds"
+-427 pt/round: Salvemundi(P1) "Deum laudamus victoria"
+CBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBBBbBBbBB
+Ccccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcccbccbcc
+
+BbBBbBBBbBBbBBBbBBbBBBbBB
+cbccbcccbccbcccbccbcccbcc
+
+--------------------------------------------------------------------------------
+58 pt/round: OogaBoogahs(P2) "Collude 50% unless betrayed within the last 50 rounds"
+-316 pt/round: vlogChamp™(P3) "How to get free 100 points(No Survey!)"
+CCBcBBBBBbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCBCBBCCCCCBCBCCCCCBC
+CCcBcccccbccccccccccccccccccccccccccccccccccccccccccccccccccCcCccCCCCCcCcCCCCCcC
+
+CCBBBBCBCCBBBBBCCBBBCBBBBCCCCBCBCCBBCCCCCBCBBBCBBBCCBCCCBBBCBBCBCCBBBBCBCBCCCBCB
+CCccccCcCCcccccCCcccCccccCCCCcCcCCccCCCCCcCcccCcccCCcCCCcccCccCcCCccccCcCcCCCcCc
+
+CCBCBCCBBCCBCBBCBCCCB
+CCcCcCCccCCcCccCcCCCc
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team vlogChamp™
+--------------------------------------------------------------------------------
+-61 pt/round: vlogChamp™(P3) "How to get free 100 points(No Survey!)"
+4 pt/round: The Only Boy and Girl Combo(P0) "Collude most of the time unless betrayed"
+cBcCCCccccBcccccbcCccccccccCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+BcBCCCBBBBcBBBBBbBCBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCC
+CCCCCC
+
+--------------------------------------------------------------------------------
+0 pt/round: vlogChamp™(P3) "How to get free 100 points(No Survey!)"
+0 pt/round: Salvemundi(P1) "Deum laudamus victoria"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-316 pt/round: vlogChamp™(P3) "How to get free 100 points(No Survey!)"
+58 pt/round: OogaBoogahs(P2) "Collude 50% unless betrayed within the last 50 rounds"
+CCcBcccccbccccccccccccccccccccccccccccccccccccccccccccccccccCcCccCCCCCcCcCCCCCcC
+CCBcBBBBBbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCBCBBCCCCCBCBCCCCCBC
+
+CCccccCcCCcccccCCcccCccccCCCCcCcCCccCCCCCcCcccCcccCCcCCCcccCccCcCCccccCcCcCCCcCc
+CCBBBBCBCCBBBBBCCBBBCBBBBCCCCBCBCCBBCCCCCBCBBBCBBBCCBCCCBBBCBBCBCCBBBBCBCBCCCBCB
+
+CCcCcCCccCCcCccCcCCCc
+CCBCBCCBBCCBCBBCBCCCB
+
+--------------------------------------------------------------------------------
