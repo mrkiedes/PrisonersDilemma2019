@@ -1,4 +1,4 @@
-####
+ ####
 # Each team's file must define four tokens:
 #     team_name: a string
 #     strategy_name: a string
@@ -6,11 +6,29 @@
 #     move: A function that returns 'c' or 'b'
 ####
 
-team_name = '' # Only 10 chars displayed.
-strategy_name = ''
-strategy_description = ''
+team_name = 'Salvemundi' # Only 10 chars displayed.
+strategy_name = 'Deum laudamus victoria'
+strategy_description = 'Start trustful and be more cautious'
     
 def move(my_history, their_history, my_score, their_score):
+    trust = 0 #Start with neutral trust 
+    if len(my_history)<3: #It's the first 2 rounds; collude.
+        return 'c'
+        
+    elif 'b' in their_history[-3]: #If the other AI has betrayed within the last three rounds...
+        trust -= 1 #Decrease trust in AI
+    else: #If they haven't...
+        trust += 1 #Increase trust in AI
+    if their_score > 249:#If they've betrayed with colluding choices enough....
+        trust -= 1 #Decrease trust in AI
+    else: #If they haven't...
+        trust += 1 #Increase trust in AI
+
+    if trust > -1: #If the other AI is trusted....
+        return 'c' #Collude
+    else: #If they aren't trusted...
+        return 'b' #Betray
+   
     ''' Arguments accepted: my_history, their_history are strings.
     my_score, their_score are ints.
     
@@ -63,4 +81,4 @@ if __name__ == '__main__':
               # move('bbb', 'ccc', 0, 0) returns 'b'.
               my_score=0, 
               their_score=0,
-              result='b')             
+              result='b')    
