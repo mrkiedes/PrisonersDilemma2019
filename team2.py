@@ -8,10 +8,13 @@ import random
 #     move: A function that returns 'c' or 'b'
 ####
 
-team_name = '' # Only 10 chars displayed.
+team_name = 'OogaBoogahs' # Only 10 chars displayed.
 
-strategy_name = ''
-strategy_description = 'How does this strategy decide?'
+strategy_name = 'Collude 50% unless betrayed within the last 50 rounds'
+strategy_description = '''\
+Betray if ever betrayed.
+Betray half of the time, if haven't betrayed yet then start to betray after the 50th round
+'''
 
 
     
@@ -23,9 +26,13 @@ def move(my_history, their_history, my_score, their_score):
     Returns 'c' or 'b'. 
     '''
 
-    
-          
-              
+    if 'b' in their_history[-50:]: #if they betray wihtin the last 50 rounds
+        return 'b'             #then betray
+    else:
+        if random.random()<0.5:  #50% of the rounds
+              return 'b'        #Betray
+        else:
+            return 'c'          #but the other 50% of the time collude
     # my_history: a string with one letter (c or b) per round that has been played with this opponent.
     # their_history: a string of the same length as history, possibly empty. 
     # The first round between these two players is my_history[0] and their_history[0].
@@ -56,22 +63,19 @@ def test_move(my_history, their_history, my_score, their_score, result):
 
 if __name__ == '__main__':
      
-    # Test 1: Betray on first move.
-    if test_move(my_history='',
-              their_history='', 
-              my_score=0,
-              their_score=0,
-              result='b'):
-         print 'Test passed'
+
      # Test 2: Continue betraying if they collude despite being betrayed.
-    test_move(my_history='bbb',
-              their_history='ccc', 
+    if test_move(my_history='bbbb',
+              their_history='cccb', 
               # Note the scores are for testing move().
               # The history and scores don't need to match unless
               # that is relevant to the test of move(). Here,
               # the simulation (if working correctly) would have awarded 
               # 300 to me and -750 to them. This test will pass if and only if
               # move('bbb', 'ccc', 0, 0) returns 'b'.
-              my_score=0, 
-              their_score=0,
-              result='b')             
+              my_score=25, 
+              their_score=54,
+              result='b'):
+        print 'Test passed'
+    else:
+        print("Test Failed")      
